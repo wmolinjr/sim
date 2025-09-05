@@ -1149,7 +1149,6 @@ export const auth = betterAuth({
             }
           },
         },
-
         // WMJ Auth Provider (auth.wmj.com.br)
         {
           providerId: 'wmj-auth',
@@ -1157,7 +1156,7 @@ export const auth = betterAuth({
           clientSecret: env.WMJ_AUTH_CLIENT_SECRET as string,
           authorizationUrl: 'https://auth.wmj.com.br/oauth/authorize',
           tokenUrl: 'https://auth.wmj.com.br/oauth/token',
-          userInfoUrl: 'https://auth.wmj.com.br/api/user',
+          userInfoUrl: 'https://auth.wmj.com.br/oauth/userinfo',
           scopes: ['openid', 'profile', 'email'],
           responseType: 'code',
           pkce: true,
@@ -1167,7 +1166,7 @@ export const auth = betterAuth({
           redirectURI: `${env.NEXT_PUBLIC_APP_URL}/api/auth/oauth2/callback/wmj-auth`,
           getUserInfo: async (tokens) => {
             try {
-              const response = await fetch('https://auth.wmj.com.br/api/user', {
+              const response = await fetch('https://auth.wmj.com.br/oauth/userinfo', {
                 headers: {
                   Authorization: `Bearer ${tokens.accessToken}`,
                   Accept: 'application/json',
@@ -1186,16 +1185,19 @@ export const auth = betterAuth({
               const now = new Date()
 
               return {
-                id: profile.id.toString(),
-                name: profile.name || 'WMJ User',
+                id: profile.sub.toString(),
+                name: profile.name || profile.preferred_username || 'WMJ User',
                 email: profile.email,
                 image: profile.avatar || null,
-                emailVerified: !!profile.email_verified_at,
+                emailVerified: !!profile.email_verified,
                 createdAt: now,
                 updatedAt: now,
+                roles: profile.roles || [],
+                department: profile.department || null,
+                provider: profile.provider || 'WMJ Identity Provider',
               }
             } catch (error) {
-              logger.error('Error in WMJ Auth getUserInfo:', { error })
+              logger.error('Error creating WMJ Identity profile:', { error })
               return null
             }
           },

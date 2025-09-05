@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className='mx-auto max-w-7xl'>
           <Link href='/' className='inline-flex'>
             {brand.logoUrl ? (
-              <img
+              <Image
                 src={brand.logoUrl}
                 alt={`${brand.name} Logo`}
                 width={56}

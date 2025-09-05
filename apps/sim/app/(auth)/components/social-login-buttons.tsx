@@ -97,9 +97,9 @@ export function SocialLoginButtons({
 
     setIsWmjAuthLoading(true)
     try {
-      await client.signIn.oauth2({ 
-        providerId: 'wmj-auth', 
-        callbackURL 
+      await client.signIn.oauth2({
+        providerId: 'wmj-auth',
+        callbackURL,
       })
 
       // Mark that the user has previously logged in
