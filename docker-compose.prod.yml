@@ -3,7 +3,7 @@ services:
     image: ghcr.io/simstudioai/simstudio:latest
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - '${STUDIO_PORT:-3000}:3000'
     deploy:
       resources:
         limits:
@@ -18,10 +18,13 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-placeholder}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-placeholder}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-placeholder}
+      - WMJ_AUTH_CLIENT_ID=${WMJ_AUTH_CLIENT_ID:-placeholder}
+      - WMJ_AUTH_CLIENT_SECRET=${WMJ_AUTH_CLIENT_SECRET:-placeholder}
       - RESEND_API_KEY=${RESEND_API_KEY:-placeholder}
       - OLLAMA_URL=${OLLAMA_URL:-http://localhost:11434}
       - SOCKET_SERVER_URL=${SOCKET_SERVER_URL:-http://localhost:3002}
       - NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL:-http://localhost:3002}
+      - COPILOT_API_KEY=${COPILOT_API_KEY:-placeholder}
     depends_on:
       db:
         condition: service_healthy
