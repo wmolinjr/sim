@@ -8,6 +8,7 @@ import { client } from '@/lib/auth-client'
 interface SocialLoginButtonsProps {
   githubAvailable: boolean
   googleAvailable: boolean
+  wmjAuthAvailable: boolean
   callbackURL?: string
   isProduction: boolean
 }
@@ -15,11 +16,13 @@ interface SocialLoginButtonsProps {
 export function SocialLoginButtons({
   githubAvailable,
   googleAvailable,
+  wmjAuthAvailable,
   callbackURL = '/workspace',
   isProduction,
 }: SocialLoginButtonsProps) {
   const [isGithubLoading, setIsGithubLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isWmjAuthLoading, setIsWmjAuthLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   // Set mounted state to true on client-side
@@ -89,6 +92,38 @@ export function SocialLoginButtons({
     }
   }
 
+  async function signInWithWmjAuth() {
+    if (!wmjAuthAvailable) return
+
+    setIsWmjAuthLoading(true)
+    try {
+      await client.signIn.oauth2({ 
+        providerId: 'wmj-auth', 
+        callbackURL 
+      })
+
+      // Mark that the user has previously logged in
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('has_logged_in_before', 'true')
+        document.cookie = 'has_logged_in_before=true; path=/; max-age=31536000; SameSite=Lax' // 1 year expiry
+      }
+    } catch (err: any) {
+      let errorMessage = 'Failed to sign in with WMJ Auth'
+
+      if (err.message?.includes('account exists')) {
+        errorMessage = 'An account with this email already exists. Please sign in instead.'
+      } else if (err.message?.includes('cancelled')) {
+        errorMessage = 'WMJ Auth sign in was cancelled. Please try again.'
+      } else if (err.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (err.message?.includes('rate limit')) {
+        errorMessage = 'Too many attempts. Please try again later.'
+      }
+    } finally {
+      setIsWmjAuthLoading(false)
+    }
+  }
+
   const githubButton = (
     <Button
       variant='outline'
@@ -113,7 +148,18 @@ export function SocialLoginButtons({
     </Button>
   )
 
-  const hasAnyOAuthProvider = githubAvailable || googleAvailable
+  const wmjAuthButton = (
+    <Button
+      variant='outline'
+      className='w-full border-neutral-700 bg-neutral-900 text-white hover:bg-neutral-800 hover:text-white'
+      disabled={!wmjAuthAvailable || isWmjAuthLoading}
+      onClick={signInWithWmjAuth}
+    >
+      {isWmjAuthLoading ? 'Conectando...' : 'Entrar com WMJ Auth'}
+    </Button>
+  )
+
+  const hasAnyOAuthProvider = githubAvailable || googleAvailable || wmjAuthAvailable
 
   if (!hasAnyOAuthProvider) {
     return null
@@ -121,6 +167,7 @@ export function SocialLoginButtons({
 
   return (
     <div className='grid gap-3'>
+      {wmjAuthAvailable && wmjAuthButton}
       {githubAvailable && githubButton}
       {googleAvailable && googleButton}
     </div>

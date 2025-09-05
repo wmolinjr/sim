@@ -86,10 +86,12 @@ const validatePassword = (passwordValue: string): string[] => {
 export default function LoginPage({
   githubAvailable,
   googleAvailable,
+  wmjAuthAvailable,
   isProduction,
 }: {
   githubAvailable: boolean
   googleAvailable: boolean
+  wmjAuthAvailable: boolean
   isProduction: boolean
 }) {
   const router = useRouter()
@@ -383,11 +385,12 @@ export default function LoginPage({
           <SocialLoginButtons
             googleAvailable={googleAvailable}
             githubAvailable={githubAvailable}
+            wmjAuthAvailable={wmjAuthAvailable}
             isProduction={isProduction}
             callbackURL={callbackUrl}
           />
 
-          {(githubAvailable || googleAvailable) && (
+          {(githubAvailable || googleAvailable || wmjAuthAvailable) && (
             <div className='relative mt-2 py-4'>
               <div className='absolute inset-0 flex items-center'>
                 <div className='w-full border-neutral-700/50 border-t' />

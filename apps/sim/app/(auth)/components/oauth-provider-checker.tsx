@@ -4,19 +4,17 @@ import { env } from '@/lib/env'
 import { isProd } from '@/lib/environment'
 
 export async function getOAuthProviderStatus() {
-  const githubAvailable = !!(
-    env.GITHUB_CLIENT_ID &&
-    env.GITHUB_CLIENT_SECRET &&
-    env.GITHUB_CLIENT_ID !== 'placeholder' &&
-    env.GITHUB_CLIENT_SECRET !== 'placeholder'
+  // Disable all providers except WMJ Auth
+  const githubAvailable = false
+  const googleAvailable = false
+
+  // WMJ Auth is now the primary provider
+  const wmjAuthAvailable = !!(
+    env.WMJ_AUTH_CLIENT_ID &&
+    env.WMJ_AUTH_CLIENT_SECRET &&
+    env.WMJ_AUTH_CLIENT_ID !== 'placeholder' &&
+    env.WMJ_AUTH_CLIENT_SECRET !== 'placeholder'
   )
 
-  const googleAvailable = !!(
-    env.GOOGLE_CLIENT_ID &&
-    env.GOOGLE_CLIENT_SECRET &&
-    env.GOOGLE_CLIENT_ID !== 'placeholder' &&
-    env.GOOGLE_CLIENT_SECRET !== 'placeholder'
-  )
-
-  return { githubAvailable, googleAvailable, isProduction: isProd }
+  return { githubAvailable, googleAvailable, wmjAuthAvailable, isProduction: isProd }
 }

@@ -1149,6 +1149,57 @@ export const auth = betterAuth({
             }
           },
         },
+
+        // WMJ Auth Provider (auth.wmj.com.br)
+        {
+          providerId: 'wmj-auth',
+          clientId: env.WMJ_AUTH_CLIENT_ID as string,
+          clientSecret: env.WMJ_AUTH_CLIENT_SECRET as string,
+          authorizationUrl: 'https://auth.wmj.com.br/oauth/authorize',
+          tokenUrl: 'https://auth.wmj.com.br/oauth/token',
+          userInfoUrl: 'https://auth.wmj.com.br/api/user',
+          scopes: ['openid', 'profile', 'email'],
+          responseType: 'code',
+          pkce: true,
+          accessType: 'offline',
+          authentication: 'basic',
+          prompt: 'consent',
+          redirectURI: `${env.NEXT_PUBLIC_APP_URL}/api/auth/oauth2/callback/wmj-auth`,
+          getUserInfo: async (tokens) => {
+            try {
+              const response = await fetch('https://auth.wmj.com.br/api/user', {
+                headers: {
+                  Authorization: `Bearer ${tokens.accessToken}`,
+                  Accept: 'application/json',
+                },
+              })
+
+              if (!response.ok) {
+                logger.error('Error fetching WMJ Auth user info:', {
+                  status: response.status,
+                  statusText: response.statusText,
+                })
+                return null
+              }
+
+              const profile = await response.json()
+              const now = new Date()
+
+              return {
+                id: profile.id.toString(),
+                name: profile.name || 'WMJ User',
+                email: profile.email,
+                image: profile.avatar || null,
+                emailVerified: !!profile.email_verified_at,
+                createdAt: now,
+                updatedAt: now,
+              }
+            } catch (error) {
+              logger.error('Error in WMJ Auth getUserInfo:', { error })
+              return null
+            }
+          },
+        },
       ],
     }),
     // Only include the Stripe plugin when billing is enabled
