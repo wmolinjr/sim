@@ -9,12 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: { man
   const { githubAvailable, googleAvailable, wmjAuthAvailable, isProduction } =
     await getOAuthProviderStatus()
 
-  // Se WMJ Auth está disponível, é o único provedor, e não é login manual, redireciona automaticamente
-  const isManualLogin = searchParams?.manual === 'true'
-  const shouldAutoRedirect =
-    wmjAuthAvailable && !githubAvailable && !googleAvailable && !isManualLogin
-
-  if (shouldAutoRedirect) {
+  if (wmjAuthAvailable) {
     return <WmjAuthRedirect />
   }
 
